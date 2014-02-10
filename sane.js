@@ -36,3 +36,80 @@ exports.getDevices = function (callback) {
   });
 };
 
+exports.scanPage = function (device, flags, incrback, callback) {
+  console.log('starting a scan on', device.name, 'with', flags);
+  
+  if (!flags) flags = [];
+  flags.push('-d');
+  flags.push(device.name);
+  
+  var proc = spawn('scanimage', flags);
+  
+  var width, height, maxval, data, offset, perrow, reported;
+  proc.stdout.once('data', function (head) {
+    
+    // strip out header
+    var i, nls;
+    for (i = 0, nls = 0; nls < 4; i++)
+      if (head[i] == 10)
+        nls++;
+    
+    var meta = head.slice(0, i).toString().split('\n');
+    
+    if (meta[0] != 'P6') {
+      console.log('file is', meta[0], 'instead of P6');
+    }
+    
+    var dims = meta[2].split(' ');
+    width = +dims[0];
+    height = +dims[1];
+    maxval = +meta[3];
+    
+    console.log('scan (' + width + 'x' + height + ') output started');
+    
+    data = new Buffer(width * height * 3);
+    perrow = width * 3;
+    reported = 0;
+    console.log('created', Math.round(width * height * 3 / 1024 / 1024 * 10) / 10, 'mb buffer');
+    
+    head.copy(data, 0, i);
+    offset = head.length - i;
+    
+    proc.stdout.on('data', function (chunk) {
+      chunk.copy(data, offset);
+      offset += chunk.length;
+      
+      if (incrback) {
+        var rows = [];
+        while (reported + perrow <= offset) {
+          rows.push(data.slice(reported, reported + perrow));
+          reported += perrow;
+        }
+        
+        if (rows.length) {
+          incrback(rows, width, height, maxval);
+        }
+      }
+      
+      if (offset == data.length) {
+        console.log('scan complete');
+        callback(data, width, height, maxval);
+      }
+    });
+    
+    proc.on('close', function (code) {
+      if (code) {
+        console.log('scan crashed with code', code);
+        callback(code);
+        return;
+      }
+      
+      if (offset != data.length) {
+        console.log('scan completed without all data (!)');
+        callback(data, width, height, maxval);
+      }
+    });
+  });
+  
+  
+};

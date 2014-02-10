@@ -1,0 +1,21 @@
+{
+  "name": "scanly",
+  "description": "Web-oriented document scanner",
+  "version": "0.0.1",
+  "homepage": "https://github.com/danopia/scanly",
+  "author": {
+      "name": "Daniel Lamando",
+      "email": "dan@danopia.net",
+      "url": "http://danopia.net/"
+  },
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/danopia/scanly"
+  },
+  "bugs": "https://github.com/danopia/scanly/issues",
+  "dependencies": {
+      "pdfkit": ">=0.2.7",
+      "jpeg": "yztaoj/node-jpeg"
+  },
+  "engine": [ "node >= v0.10.0" ]
+}
