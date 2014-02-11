@@ -36,12 +36,13 @@ exports.getDevices = function (callback) {
   });
 };
 
-exports.scanPage = function (device, flags, incrback, callback) {
-  console.log('starting a scan on', device.name, 'with', flags);
+exports.scanPage = function (device, flags, startback, incrback, callback) {
+  device = device.name || device;
+  console.log('starting a scan on', device, 'with', flags);
   
   if (!flags) flags = [];
   flags.push('-d');
-  flags.push(device.name);
+  flags.push(device);
   
   var proc = spawn('scanimage', flags);
   
@@ -67,6 +68,10 @@ exports.scanPage = function (device, flags, incrback, callback) {
     
     console.log('scan (' + width + 'x' + height + ') output started');
     
+    if (startback) {
+      startback(width, height, maxval);
+    }
+    
     data = new Buffer(width * height * 3);
     perrow = width * 3;
     reported = 0;
@@ -87,29 +92,27 @@ exports.scanPage = function (device, flags, incrback, callback) {
         }
         
         if (rows.length) {
-          incrback(rows, width, height, maxval);
+          incrback(rows);
         }
       }
       
       if (offset == data.length) {
         console.log('scan complete');
-        callback(data, width, height, maxval);
-      }
-    });
-    
-    proc.on('close', function (code) {
-      if (code) {
-        console.log('scan crashed with code', code);
-        callback(code);
-        return;
-      }
-      
-      if (offset != data.length) {
-        console.log('scan completed without all data (!)');
-        callback(data, width, height, maxval);
+        callback(null, data);
       }
     });
   });
-  
-  
+    
+  proc.on('close', function (code) {
+    if (code) {
+      console.log('scan crashed with code', code);
+      callback(code);
+      return;
+    }
+    
+    if (offset != data.length) {
+      console.log('scan completed without all data (!)');
+      callback(null, data);
+    }
+  });
 };
