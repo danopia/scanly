@@ -1,4 +1,4 @@
-var sane = require('./sane');
+var sane = require('./faker');
 var Jpeg = require('jpeg').Jpeg;
 var fs   = require('fs');
 
