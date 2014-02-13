@@ -46,6 +46,7 @@ h1 {
   margin: 25px 25px 25px 0;
   border: 1px solid #222;
   box-shadow: 0 0 35px #555;
+  background: #fff;
 }
 
 .progress-page {
@@ -55,7 +56,7 @@ h1 {
 .waiting-page {
   width: 100px;
   display: inline-block;
-  background: url(/img/spinner.gif) no-repeat center center;
+  background: url(/img/spinner.gif) no-repeat center center #fff;
   background-size: 90px;
 }
 
