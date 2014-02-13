@@ -68,6 +68,7 @@ $(function () {
         $.ctx.putImageData($.line, 0, $.row);
         $.row++;
       }
+      $.ctx.putImageData($.redline, 0, $.row);
     } else if (data.status == 'complete') {
       var png = $.canvas[0].toDataURL();
       $.canvas.remove();
