@@ -21,21 +21,39 @@ $(function () {
   });
   
   $.socket.on('scan', function (data) {
-    console.log(data);
-    
-    if (data.status == 'starting') {
+    if (data.status == 'waiting') {
       $.canvas = $('<canvas>');
-      $.canvas.addClass('progress-page');
+      $.canvas.addClass('waiting-page');
       $.canvas.addClass('page');
+      $('#pages').append($.canvas);
+      
+      $('#pages').animate({
+        scrollLeft: $.canvas.offset().left + $.canvas.width() + $('#pages').scrollLeft()
+      }, 500);
+    } else if (data.status == 'starting') {
       $.canvas[0].width = data.size.width;
       $.canvas[0].height = data.size.height;
-      $('#pages').append($.canvas);
+      $.canvas.removeClass('waiting-page');
+      $.canvas.addClass('progress-page');
       
       $.ctx = $.canvas[0].getContext('2d');
       $.line = $.ctx.createImageData(data.size.width, 1);
       
+      $.redline = $.ctx.createImageData(data.size.width, 1);
+      var i;
+      for (i = 0; i < data.size.width; i++) {
+        $.redline.data[i*4+0] = 255;
+        $.redline.data[i*4+1] = 0;
+        $.redline.data[i*4+2] = 0;
+        $.redline.data[i*4+3] = 255;
+      }
+      
       $.row = 0;
       $.size = data.size;
+      
+      $('#pages').animate({
+        scrollLeft: $.canvas.offset().left + $.canvas.width() + $('#pages').scrollLeft()
+      }, 500);
     } else if (data.status == 'progress') {
       while (data.lines.length) {
         var line = data.lines.shift();
