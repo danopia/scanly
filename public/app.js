@@ -26,9 +26,10 @@ $(function () {
     if (data.status == 'starting') {
       $.canvas = $('<canvas>');
       $.canvas.addClass('progress-page');
+      $.canvas.addClass('page');
       $.canvas[0].width = data.size.width;
       $.canvas[0].height = data.size.height;
-      $('body').append($.canvas);
+      $('#pages').append($.canvas);
       
       $.ctx = $.canvas[0].getContext('2d');
       $.line = $.ctx.createImageData(data.size.width, 1);
@@ -55,7 +56,8 @@ $(function () {
       $.canvas = $.ctx = $.line = null;
       
       var $img = $('<img>', {src: png});
-      $('body').append($img);
+      $img.addClass('page');
+      $('#pages').append($img);
     }
   });
   
